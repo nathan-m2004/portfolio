@@ -1,0 +1,22 @@
+services:
+    frontend:
+        image: portfolio-frontend:1.0
+        build:
+            context: ./
+            dockerfile: Dockerfile
+            target: development
+        # 1. Define where the command runs
+        working_dir: /portfolio
+        env_file:
+            - .env
+        volumes:
+            - ./:/portfolio
+            - /portfolio/node_modules
+            - /portfolio/.nuxt
+            - /portfolio/.output
+            - /portfolio/dist
+            - /portfolio/.git
+            - /portfolio/npm-debug.log
+        ports:
+            - "3000:3000"
+            - "24678:24678"
