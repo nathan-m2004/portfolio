@@ -11,7 +11,7 @@ export class InteractionManager {
     onNodeSelected: (data: any) => void;
 
     physics: PhysicsEngine;
-    controls: any; // HorizontalControls or OrbitControls
+    controls: any;
 
     // Drag State
     private draggedNode: THREE.Mesh | null = null;
@@ -46,6 +46,10 @@ export class InteractionManager {
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
 
+        this.onTouchStart = this.onTouchStart.bind(this);
+        this.onTouchMove = this.onTouchMove.bind(this);
+        this.onTouchEnd = this.onTouchEnd.bind(this);
+
         this.enable();
     }
 
@@ -53,22 +57,76 @@ export class InteractionManager {
         this.canvas.addEventListener("mousedown", this.onMouseDown);
         window.addEventListener("mousemove", this.onMouseMove);
         window.addEventListener("mouseup", this.onMouseUp);
+
+        this.canvas.addEventListener("touchstart", this.onTouchStart, { passive: false });
+        window.addEventListener("touchmove", this.onTouchMove, { passive: false });
+        window.addEventListener("touchend", this.onTouchEnd);
     }
 
     disable() {
         this.canvas.removeEventListener("mousedown", this.onMouseDown);
         window.removeEventListener("mousemove", this.onMouseMove);
         window.removeEventListener("mouseup", this.onMouseUp);
+
+        this.canvas.removeEventListener("touchstart", this.onTouchStart);
+        window.removeEventListener("touchmove", this.onTouchMove);
+        window.removeEventListener("touchend", this.onTouchEnd);
     }
 
-    private updateMouse(event: MouseEvent) {
+    private updateMouseCoords(clientX: number, clientY: number) {
         const rect = this.canvas.getBoundingClientRect();
-        this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        this.mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+        this.mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
     }
 
-    onMouseDown(event: MouseEvent) {
-        this.updateMouse(event);
+    // --- TOUCH HANDLERS ---
+
+    onTouchStart(event: TouchEvent) {
+        // NEW: If multi-touch (pinch), ignore selection completely
+        if (event.touches.length > 1) {
+            // If we were already dragging a node with 1 finger, drop it now
+            if (this.draggedNode) {
+                this.onMouseUp();
+            }
+            return;
+        }
+
+        const touch = event.touches[0];
+        this.updateMouseCoords(touch!.clientX, touch!.clientY);
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+        const intersects = this.raycaster.intersectObjects(this.meshes, false);
+
+        if (intersects.length > 0) {
+            if (event.cancelable) event.preventDefault();
+            this.onMouseDown(touch as any);
+        } else {
+            this.resetSelection();
+            this.onNodeSelected(null);
+        }
+    }
+
+    onTouchMove(event: TouchEvent) {
+        // NEW: If multi-touch, abort drag if active
+        if (event.touches.length > 1) {
+            if (this.draggedNode) this.onMouseUp();
+            return;
+        }
+
+        if (this.draggedNode) {
+            if (event.cancelable) event.preventDefault();
+            const touch = event.touches[0];
+            this.onMouseMove(touch as any);
+        }
+    }
+
+    onTouchEnd(event: TouchEvent) {
+        this.onMouseUp();
+    }
+
+    // --- LOGIC ---
+
+    onMouseDown(event: MouseEvent | Touch) {
+        this.updateMouseCoords(event.clientX, event.clientY);
         this.raycaster.setFromCamera(this.mouse, this.camera);
 
         const intersects = this.raycaster.intersectObjects(this.meshes, false);
@@ -77,45 +135,38 @@ export class InteractionManager {
             const hit = intersects[0];
             this.draggedNode = hit!.object as THREE.Mesh;
 
-            // 1. Disable Camera Controls (Stop rotation/zoom)
-            if (this.controls) this.controls.dispose();
+            if (this.controls) this.controls.enabled = false;
 
-            // 2. Setup Drag Plane
             const normal = new THREE.Vector3();
             this.camera.getWorldDirection(normal);
             this.dragPlane.setFromNormalAndCoplanarPoint(normal, this.draggedNode.position);
 
-            // 3. Calculate Offset
             if (this.raycaster.ray.intersectPlane(this.dragPlane, this.intersectionPoint)) {
                 this.dragOffset.subVectors(this.draggedNode.position, this.intersectionPoint);
             }
 
-            // 4. Physics Drag
             const nodeInstance = this.physics.nodes.find((n) => n.cube === this.draggedNode);
             if (nodeInstance) {
                 this.physics.dragNode(nodeInstance, this.draggedNode.position.clone());
             }
 
-            // 5. Highlight & Select (Emissive Effect)
             if (this.selectedMesh !== this.draggedNode) {
                 this.resetSelection();
                 this.highlightNode(this.draggedNode);
-
                 if (this.draggedNode.userData) {
                     this.onNodeSelected(this.draggedNode.userData);
                 }
             }
         } else {
-            // Clicked Empty Space
             this.resetSelection();
             this.onNodeSelected(null);
         }
     }
 
-    onMouseMove(event: MouseEvent) {
+    onMouseMove(event: MouseEvent | Touch) {
         if (!this.draggedNode) return;
 
-        this.updateMouse(event);
+        this.updateMouseCoords(event.clientX, event.clientY);
         this.raycaster.setFromCamera(this.mouse, this.camera);
 
         if (this.raycaster.ray.intersectPlane(this.dragPlane, this.intersectionPoint)) {
@@ -129,33 +180,24 @@ export class InteractionManager {
     }
 
     onMouseUp() {
-        // We release drag, but we KEEP the selection highlight active
         if (this.draggedNode) {
             const nodeInstance = this.physics.nodes.find((n) => n.cube === this.draggedNode);
             if (nodeInstance) {
                 this.physics.releaseNode(nodeInstance);
             }
 
-            // Re-enable controls so the user can rotate again
-            if (this.controls) this.controls.addEventListeners();
+            if (this.controls) this.controls.enabled = true;
 
             this.draggedNode = null;
         }
     }
 
-    // --- Emissive Highlight Logic ---
-
     private highlightNode(mesh: THREE.Mesh) {
         this.selectedMesh = mesh;
-
         const material = mesh.material as THREE.MeshPhysicalMaterial;
-
-        // Check if material has emissive properties
         if (material.emissive) {
             this.originalEmissive.copy(material.emissive);
             this.originalIntensity = material.emissiveIntensity;
-
-            // Set to Gold/Orange glow
             material.emissive.setHSL(0, 0.5, 1);
             material.emissiveIntensity = 2.5;
         }
@@ -164,12 +206,10 @@ export class InteractionManager {
     private resetSelection() {
         if (this.selectedMesh) {
             const material = this.selectedMesh.material as THREE.MeshPhysicalMaterial;
-
             if (material.emissive) {
                 material.emissive.copy(this.originalEmissive);
                 material.emissiveIntensity = this.originalIntensity;
             }
-
             this.selectedMesh = null;
         }
     }

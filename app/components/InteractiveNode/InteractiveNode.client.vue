@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { InfrastructureScene, type NodesType, type NodeType } from './Scene'; // Import your main class
+import { useMediaQuery } from '@vueuse/core'
 
 const InteractableNodes: NodesType = [
     {
@@ -109,6 +110,8 @@ let sceneInstance: InfrastructureScene | null = null;
 
 // 1. Create a reactive variable to hold the selected node data
 const selectedNodeInfo = ref<NodeType | null>(null);
+const isTouchDevice = useMediaQuery('(pointer: coarse)')
+
 
 // 2. Define the callback function
 const handleNodeSelection = (data: any) => {
@@ -140,23 +143,46 @@ onBeforeUnmount(() => {
             enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-150"
             leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-4">
 
-            <!-- 
-                 Added responsive utility classes:
-                 1. w-full max-w-md px-6: Ensures width is controlled on desktop but doesn't touch edges on mobile.
-                 2. bottom-8 md:bottom-12: Adjusts vertical position slightly for smaller screens.
-            -->
             <div v-if="selectedNodeInfo"
                 class="fixed bottom-12 md:bottom-12 left-1/2 -translate-x-1/2 text-center pointer-events-none z-10 w-full max-w-md px-6">
                 <div class="text-gray-200">
-                    <!-- Responsive font size: text-lg on mobile, text-xl on desktop -->
                     <h3 class="text-lg md:text-xl text-white mb-1 md:mb-2 tracking-wider">
                         {{ selectedNodeInfo.name.toUpperCase() }}
                     </h3>
-                    <!-- Responsive font size: text-sm on mobile, text-base on desktop -->
                     <p class="text-sm md:text-base font-light font-sans opacity-90 leading-relaxed">
                         {{ selectedNodeInfo.description }}
                     </p>
                 </div>
+            </div>
+        </Transition>
+
+        <Transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 translate-y-4"
+            enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-150"
+            leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-4">
+
+            <div v-if="!selectedNodeInfo"
+                class="fixed bottom-12 left-1/2 -translate-x-1/2 pointer-events-none select-none text-gray-400/80">
+
+                <div class="flex flex-col items-center gap-2 text-xs md:text-sm font-light tracking-wide uppercase">
+                    <template v-if="isTouchDevice">
+                        <div class="flex items-center">
+                            <UIcon name="material-symbols:pinch" class="w-5 h-5 mr-2" />
+                            <span>Pinch to zoom</span>
+                        </div>
+                        <div class="flex items-center">
+                            <UIcon name="material-symbols:drag-pan" class="w-5 h-5 mr-2" />
+                            <span>Drag to rotate</span>
+                        </div>
+                    </template>
+
+                    <template v-else>
+                        <div class="flex items-center">
+                            <UIcon name="material-symbols:drag-pan" class="w-5 h-5 mr-2" />
+                            <span>Drag to zoom and rotate</span>
+                        </div>
+                    </template>
+                </div>
+
             </div>
         </Transition>
     </div>

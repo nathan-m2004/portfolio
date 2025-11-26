@@ -56,22 +56,10 @@ const progress = mapRange(animationStart, animationEnd, 0, 100, easeInOutCubic)
     <div ref="sectionRef"
         class="flex flex-col relative min-h-screen justify-center items-center overflow-hidden w-full">
         <ClientOnly>
-            <!-- 
-                InteractiveNode:
-                We multiply opacity by 0.3 when showInfo is false so it starts dim 
-                and then brightens up when the interaction triggers.
-            -->
             <InteractiveNode class="transition-opacity duration-500 ease-in-out cursor-move"
                 :style="{ opacity: `${progress * (showInfo ? 1 : 0.3)}%` }" />
 
-            <!-- 
-                Text Container:
-                1. Added 'z-10' to ensure text is above the node if they overlap.
-                2. Changed '-translate-y-76' to responsive '-translate-y-32 md:-translate-y-76'.
-                   32 (8rem) is much safer for mobile screens than 76 (19rem).
-                3. Added 'px-4' for horizontal safety on small phones.
-            -->
-            <div class="flex flex-col items-center transition-transform duration-1000 ease-in-out pointer-events-none z-10 px-4"
+            <div class="flex flex-col items-center transition-transform duration-1000 ease-in-out z-10 px-4 pointer-events-none select-none"
                 :class="{ '-translate-y-66 md:-translate-y-76': showInfo }" :style="{ opacity: `${progress}%` }">
 
                 <div class="flex items-center gap-4 mb-2 text-center">

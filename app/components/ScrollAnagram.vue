@@ -12,11 +12,11 @@ const endWord = "NATHAN"
 
 // 2. Define Dynamic Scroll Distance
 // This is reactive: if you resize the window, this value updates.
-const scrollDistance = computed(() => width.value < 768 ? 500 : 900)
+const scrollDistance = computed(() => width.value < 768 ? 500 : 700)
 
 // 3. Use mapRange directly with the reactive scrollDistance
 // We pass the Ref variable 'scrollDistance', not scrollDistance.value
-const progress = mapRange(0, scrollDistance, 0, 1, easeInOutCubic)
+const progress = mapRange(0, scrollDistance, 0, 1)
 const topPosition = mapRange(0, scrollDistance, 50, 5, easeInOutCubic)
 const opacity = mapRange(0, scrollDistance, 100, 0, easeInOutCubic)
 
@@ -32,8 +32,9 @@ const currentText = computed(() => {
         <ClientOnly>
 
             <!-- MAIN TEXT CONTAINER -->
-            <div class="fixed w-full left-0 px-4 text-center z-10" :style="{ top: `${topPosition}vh` }">
-                <h1 class="text-3xl md:text-5xl font-medium tracking-widest wrap-break-word">
+            <div class="fixed w-full left-0 px-4 text-center z-10 pointer-events-none"
+                :style="{ top: `${topPosition}vh` }">
+                <h1 class="pointer-events-auto text-3xl md:text-5xl font-medium tracking-widest wrap-break-word">
                     {{ currentText }}
                 </h1>
 
@@ -46,10 +47,10 @@ const currentText = computed(() => {
             <!-- FOOTER TEXT -->
             <p class="fixed bottom-10 w-full left-0 text-center px-4 text-xs md:text-base leading-relaxed"
                 :style="{ opacity: `${opacity}%` }">
-                Software Engineer <span class="hidden sm:inline">|</span>
-                <span class="block sm:inline">Full Stack Developer</span>
+                Software Engineer <span class="hidden sm:inline">| </span>
+                <span class="block sm:inline">Full Stack Developer </span>
                 <span class="hidden sm:inline">|</span>
-                <span class="block sm:inline">Linux Enthusiast</span>
+                <span class="block sm:inline"> Linux Enthusiast</span>
             </p>
 
             <template #fallback>

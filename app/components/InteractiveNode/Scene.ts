@@ -35,7 +35,7 @@ export class InfrastructureScene {
         this.clock = new THREE.Clock();
 
         const aspect = window.innerWidth / window.innerHeight;
-        const frustumSize = aspect < 1 ? 15 : 9;
+        const frustumSize = aspect < 1 ? 17 : 12;
         this.camera = new THREE.OrthographicCamera(
             (frustumSize * aspect) / -2, // left
             (frustumSize * aspect) / 2, // right
@@ -48,6 +48,13 @@ export class InfrastructureScene {
         this.camera.lookAt(0, 0, 0);
 
         this.controls = new HorizontalControls(this.camera, this.canvas);
+        if (aspect < 1) {
+            this.controls.maxZoom = 2;
+            this.controls.zoomSensitivity = 0.004;
+        } else {
+            this.controls.maxZoom = 1.5;
+            this.controls.zoomSensitivity = 0.001;
+        }
 
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas,
@@ -175,7 +182,7 @@ export class InfrastructureScene {
 
     onWindowResize() {
         const aspect = window.innerWidth / window.innerHeight;
-        const frustumSize = 5;
+        const frustumSize = aspect < 1 ? 17 : 12;
 
         this.camera.left = (-frustumSize * aspect) / 2;
         this.camera.right = (frustumSize * aspect) / 2;
@@ -183,6 +190,13 @@ export class InfrastructureScene {
         this.camera.bottom = -frustumSize / 2;
 
         this.camera.updateProjectionMatrix();
+        if (aspect < 1) {
+            this.controls.maxZoom = 2;
+            this.controls.zoomSensitivity = 0.004;
+        } else {
+            this.controls.maxZoom = 1.5;
+            this.controls.zoomSensitivity = 0.001;
+        }
 
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
