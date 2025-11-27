@@ -1,9 +1,11 @@
 <script setup="ts">
 import ScrollAnagram from '~/components/ScrollAnagram.vue';
-import Intro from '~/components/Intro.vue';
+import Infraesctructure from '~/components/Infraestructure.vue';
+import Projects from '~/components/Projects.vue';
 </script>
 
 <template>
     <ScrollAnagram />
-    <Intro />
+    <Infraesctructure />
+    <Projects />
 </template>
