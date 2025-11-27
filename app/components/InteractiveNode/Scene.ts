@@ -60,9 +60,11 @@ export class InfrastructureScene {
             canvas: this.canvas,
             antialias: true,
             alpha: true,
+            powerPreference: "high-performance",
+            precision: "mediump",
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
         this.renderer.setClearColor(0x000000, 0);
 
         this.setupLights();
@@ -171,7 +173,7 @@ export class InfrastructureScene {
         return connector;
     }
     setupLights() {
-        const ambientLight = new THREE.AmbientLight(0xffffff, 15);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 2);
         ambientLight.color.setHSL(0.5, 0.7, 0.5);
         this.scene.add(ambientLight);
 
