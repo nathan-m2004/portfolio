@@ -80,7 +80,7 @@ const projects: Project[] = [
             </div>
         </div>
 
-        <div class="max-w-6xl mx-auto grid grid-flow-dense p-10 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div class="max-w-6xl mx-auto grid grid-flow-dense p-10 grid-cols-1 md:grid-cols-4 gap-6">
 
             <div v-for="(project, index) in projects" :key="index"
                 class="h-full w-full shadow-lg bg-old-neutral-900 group relative overflow-hidden rounded-lg transition-all duration-300"
@@ -129,7 +129,7 @@ const projects: Project[] = [
                         </div>
                     </div>
 
-                    <p class="text-gray-400 text-sm mb-6 font-light leading-relaxed flex-grow whitespace-pre-line">
+                    <p class="text-gray-400 text-sm mb-6 font-light leading-relaxed grow whitespace-pre-line">
                         {{ project.description }}
                     </p>
 
