@@ -144,7 +144,7 @@ onBeforeUnmount(() => {
             leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-4">
 
             <div v-if="selectedNodeInfo"
-                class="fixed bottom-12 md:bottom-12 left-1/2 -translate-x-1/2 text-center pointer-events-none z-10 w-full max-w-md px-6">
+                class="absolute bottom-12 md:bottom-12 left-1/2 -translate-x-1/2 text-center pointer-events-none z-10 w-full max-w-md px-6">
                 <div class="text-gray-200">
                     <h3 class="text-lg md:text-xl text-white mb-1 md:mb-2 tracking-wider">
                         {{ selectedNodeInfo.name.toUpperCase() }}
@@ -161,7 +161,7 @@ onBeforeUnmount(() => {
             leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-4">
 
             <div v-if="!selectedNodeInfo"
-                class="fixed bottom-12 left-1/2 -translate-x-1/2 pointer-events-none select-none text-gray-400/80">
+                class="absolute bottom-12 left-1/2 -translate-x-1/2 pointer-events-none select-none text-gray-400/80">
 
                 <div class="flex flex-col items-center gap-2 text-xs md:text-sm font-light tracking-wide uppercase">
                     <template v-if="isTouchDevice">
