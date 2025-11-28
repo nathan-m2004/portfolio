@@ -122,8 +122,18 @@ const handleNodeSelection = (data: any) => {
 
 onMounted(() => {
     if (canvasRef.value) {
-        // 3. Pass the callback into your Scene Constructor
         sceneInstance = new InfrastructureScene(canvasRef.value, InteractableNodes, handleNodeSelection);
+
+        const observer = new IntersectionObserver((entries) => {
+            const entry = entries[0];
+            if (entry!.isIntersecting) {
+                sceneInstance!.resume();
+            } else {
+                sceneInstance!.pause();
+            }
+        });
+
+        if (canvasRef.value) observer.observe(canvasRef.value);
     }
 });
 

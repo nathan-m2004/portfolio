@@ -19,6 +19,7 @@ export class InfrastructureScene {
     physics!: PhysicsEngine;
     controls!: HorizontalControls;
     clock!: THREE.Clock;
+    private isPaused: boolean = false;
 
     // Track the animation frame ID so we can stop it
     private animationId: number = 0;
@@ -221,6 +222,24 @@ export class InfrastructureScene {
         });
 
         this.renderer.render(this.scene, this.camera);
+    }
+    pause() {
+        this.isPaused = true;
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = 0;
+        }
+    }
+
+    resume() {
+        if (this.isPaused) {
+            this.isPaused = false;
+            // Prevent double-starting the loop
+            if (this.animationId === 0) {
+                this.clock.getDelta(); // Reset clock delta so we don't jump
+                this.animate();
+            }
+        }
     }
 
     dispose() {
