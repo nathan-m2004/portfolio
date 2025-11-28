@@ -13,6 +13,7 @@ type Project = {
     rowSpan: string
 }
 const projects: Project[] = [
+
     {
         title: "GENETIC SNAKES",
         type: "Simulation / Neural Networks",
@@ -37,6 +38,16 @@ const projects: Project[] = [
         rowSpan: "md:row-span-1",
     },
     {
+        title: "FLAPPY",
+        type: "Simulation / Neural Networks",
+        description: "Flappy bird but played by a Feedforwad Neural Network",
+        stack: ["Javascript", "HTML Canvas", "Neural Networks"],
+        repo: "https://github.com/nathan-m2004/Flappy",
+        video: "/flappy.mp4",
+        colSpan: "md:col-span-3",
+        rowSpan: "md:row-span-2",
+    },
+    {
         title: "TEXTOCSV",
         type: "CLI Tool",
         description: "Regex filtering and CSV export pipeline.",
@@ -52,36 +63,37 @@ const projects: Project[] = [
         stack: ["Blender", "After Effects", "Illustrator"],
         youtube: "odgTwU-RTkQ",
         live: "https://youtu.be/odgTwU-RTkQ",
-        colSpan: "md:col-span-2",
-        rowSpan: "md:row-span-1",
-    },
-    {
-        title: "FLAPPY",
-        type: "Simulation / Neural Networks",
-        description: "Flappy bird but played by a Feedforwad Neural Network",
-        stack: ["Javascript", "HTML Canvas", "Neural Networks"],
-        repo: "https://github.com/nathan-m2004/Flappy",
-        video: "/flappy.mp4",
-        colSpan: "md:col-span-2",
+        colSpan: "md:col-span-1",
         rowSpan: "md:row-span-1",
     },
 
 ]
+
+const sectionRef = ref<HTMLElement | null>(null)
+const isVisible = ref(false)
+
+onMounted(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+        isVisible.value = entry!.isIntersecting
+    }, { threshold: 0.2 })
+
+    if (sectionRef.value) observer.observe(sectionRef.value)
+})
 </script>
 
 <template>
-    <section class="min-h-screen px-4 py-20 text-gray-200">
-        <div class="flex justify-center max-w-6xl mx-auto mb-16">
-            <div>
-                <h2 class="tracking-wide text-xl md:text-2xl font-medium text-gray-100 mb-2">Projects</h2>
-                <p class="text-gray-400 font-light text-xs md:text-sm tracking-widest uppercase opacity-70">
+    <section ref="sectionRef" class="min-h-screen py-20 mb-8 text-gray-200 transition-all duration-700 ease-in-out"
+        :class="isVisible ? `translate-y-0 opacity-100` : `translate-y-5 opacity-0`">
+
+        <div
+            class="max-w-6xl md:p-6 bg-linear-to-b from-gray-500 to-gray-700 md:rounded-lg mx-auto grid grid-flow-dense p-6 grid-cols-1 md:grid-cols-4 gap-6">
+
+            <div class="md:row-span-1 h-full w-full rounded-lg p-6">
+                <h2 class="tracking-wide text-xl md:text-2xl font-medium mb-2">Projects</h2>
+                <p class="font-light text-xs md:text-sm tracking-widest uppercase opacity-70">
                     Selected Works & Experiments
                 </p>
             </div>
-        </div>
-
-        <div class="max-w-6xl mx-auto grid grid-flow-dense p-10 grid-cols-1 md:grid-cols-4 gap-6">
-
             <div v-for="(project, index) in projects" :key="index"
                 class="h-full w-full shadow-lg bg-old-neutral-900 group relative overflow-hidden rounded-lg transition-all duration-300"
                 :class="[project.colSpan, project.rowSpan]">

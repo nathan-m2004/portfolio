@@ -32,7 +32,7 @@ const currentText = computed(() => {
         <ClientOnly>
 
             <!-- MAIN TEXT CONTAINER -->
-            <div class="fixed w-full left-0 px-4 text-center z-10 pointer-events-none"
+            <div class="fixed mix-blend-difference w-full left-0 px-4 text-center z-10 pointer-events-none"
                 :style="{ top: `${topPosition}vh` }">
                 <h1 class="pointer-events-auto text-3xl md:text-5xl font-medium tracking-widest wrap-break-word">
                     {{ currentText }}

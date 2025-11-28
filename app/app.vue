@@ -27,7 +27,7 @@ onMounted(() => {
 
 <template>
   <title>Nathan</title>
-  <div class="fixed inset-0 pointer-events-none z-100 mix-blend-overlay opacity-7 grayscale bg-noise"></div>
+  <div class="fixed inset-0 pointer-events-none z-100 mix-blend-overlay opacity-10 grayscale bg-noise"></div>
   <NuxtPage />
 </template>
 
